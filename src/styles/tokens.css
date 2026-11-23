@@ -1,0 +1,471 @@
+/* WiseFinance Design Tokens - v1.0 */
+:root {
+  /* Fonts */
+  --font-display: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* Base Light Theme */
+  --page: #f6f7f3;
+  --surface: #ffffff;
+  --surface-2: #fbfcf9;
+  --surface-soft: #f1f4ed;
+  --line: #e6e9e1;
+  --line-strong: #d7ddd2;
+
+  /* Typography Colors - WCAG AA Contrast >= 4.5:1 */
+  --text: #202820;
+  --muted: #485447;        /* Contrast >= 4.5:1 against #f6f7f3 and #ffffff */
+  --muted-2: #657364;
+
+  /* Primary Brand Greens */
+  --green: #35684b;
+  --green-dark: #254d37;
+  --green-soft: #e8f1e7;
+  --green-pale: #f0f5ed;
+
+  /* 3 Core Money Positions */
+  --pos-saving: #4e835c;
+  --pos-saving-soft: #eaf2eb;
+  --pos-living: #d5b55e;
+  --pos-living-soft: #faf2da;
+  --pos-living-text: #826615; /* Accessible text contrast for living */
+  --pos-playing: #7d9fa0;
+  --pos-playing-soft: #e8f1f0;
+  --pos-playing-text: #366365; /* Accessible text contrast for playing */
+
+  /* Accents */
+  --coral: #c97c68;
+  --coral-soft: #f9e9e4;
+  --red: #bd5f52;          /* Strictly for 'melebihi anggaran' or critical alerts */
+  --red-soft: #faeae5;
+
+  /* Two Distinct Money Layers */
+  /* Layer 1: Uang Bulan Ini (Living + Playing) */
+  --layer-month-bg: #ffffff;
+  --layer-month-border: #e6e9e1;
+  --layer-month-badge: #faf2da;
+
+  /* Layer 2: Uang Tersimpan (Emergency + Savings + Investment + Goals) */
+  --layer-stored-bg: #eaf1e7;
+  --layer-stored-border: #d4e3d0;
+  --layer-stored-badge: #dbead7;
+
+  /* Elevations & Radii */
+  --shadow: 0 10px 35px rgba(35, 55, 36, 0.045);
+  --shadow-lg: 0 24px 70px rgba(24, 38, 26, 0.17);
+  --radius: 18px;
+  --radius-sm: 12px;
+}
+
+[data-theme='dark'] {
+  --page: #151b16;
+  --surface: #1d251e;
+  --surface-2: #202a21;
+  --surface-soft: #273328;
+  --line: #303d31;
+  --line-strong: #425142;
+
+  --text: #edf0e9;
+  --muted: #a4afa1;
+  --muted-2: #839080;
+
+  --green: #7fa783;
+  --green-dark: #9fcca3;
+  --green-soft: #263b2a;
+  --green-pale: #233326;
+
+  --pos-saving: #70a57e;
+  --pos-saving-soft: #233727;
+  --pos-living: #e2c575;
+  --pos-living-soft: #38321e;
+  --pos-living-text: #f0da96;
+  --pos-playing: #8bb0b1;
+  --pos-playing-soft: #25393a;
+  --pos-playing-text: #bad6d7;
+
+  --coral: #d18e7b;
+  --coral-soft: #412b26;
+  --red: #db867b;
+  --red-soft: #452b28;
+
+  --layer-month-bg: #1e271f;
+  --layer-month-border: #324033;
+  --layer-month-badge: #29362a;
+
+  --layer-stored-bg: #233326;
+  --layer-stored-border: #384f3c;
+  --layer-stored-badge: #2c4230;
+
+  --shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+/* ==========================================================
+   WiseFinance Design System - Core Classes & Components
+   Faithfully ported from WiseFinance-Updated_claude_11.html
+   ========================================================== */
+
+/* Typography Helpers */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: var(--muted-2, #919b8d);
+  font-size: 0.65rem;
+  letter-spacing: 1.25px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Panels */
+.panel {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--line, #e6e9e1);
+  border-radius: var(--radius, 18px);
+  box-shadow: var(--shadow, 0 10px 35px rgba(35, 55, 36, 0.045));
+  min-width: 0;
+}
+.panel-lg {
+  border-radius: 22px;
+  box-shadow: var(--shadow-lg, 0 24px 70px rgba(24, 38, 26, 0.17));
+}
+.panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.panel-heading h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.35;
+  letter-spacing: -0.45px;
+  margin: 0;
+  font-weight: 800;
+  color: var(--text, #202820);
+}
+.panel-subtitle {
+  font-size: 0.77rem;
+  line-height: 1.55;
+  color: var(--muted, #7b847b);
+  margin: 6px 0 0;
+}
+
+/* Form Fields */
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  font-size: 0.76rem;
+  color: #677363;
+  font-weight: 700;
+}
+.field-label input,
+.field-label select,
+.field-label textarea,
+.wf-input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--line-strong, #d7ddd2);
+  background: var(--surface-2, #fbfcf9);
+  border-radius: 12px;
+  padding: 0 14px;
+  color: var(--text, #202820);
+  outline: none;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.88rem;
+  min-width: 0;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.field-label input:focus,
+.field-label select:focus,
+.field-label textarea:focus,
+.wf-input:focus {
+  border-color: #7da080;
+  box-shadow: 0 0 0 3px rgba(81, 128, 89, 0.12);
+  background: #ffffff;
+}
+.field-label input::placeholder,
+.field-label textarea::placeholder,
+.wf-input::placeholder {
+  color: #adb4aa;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Buttons */
+.button {
+  border: 1px solid transparent;
+  border-radius: 12px;
+  min-height: 44px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 700;
+  transition: transform 0.13s ease, background-color 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+}
+.button:active {
+  transform: translateY(1px);
+}
+.button-primary {
+  background: var(--green, #35684b);
+  color: #ffffff;
+}
+.button-primary:hover {
+  background: var(--green-dark, #254d37);
+  color: #ffffff;
+}
+.button-secondary {
+  background: var(--surface, #ffffff);
+  color: var(--text, #202820);
+  border-color: var(--line-strong, #d7ddd2);
+}
+.button-secondary:hover {
+  background: var(--surface-soft, #f1f4ed);
+}
+.button-light {
+  background: #ffffff;
+  color: var(--green-dark, #254d37);
+}
+.button-danger {
+  background: var(--red, #bd5f52);
+  color: #ffffff;
+}
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Auth / Gate Card (.gt-*) */
+.gt-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--line, #e6e9e1);
+  border-radius: 22px;
+  box-shadow: var(--shadow-lg, 0 24px 70px rgba(24, 38, 26, 0.17));
+  padding: 32px 28px;
+  margin: auto;
+}
+.gt-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.gt-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--green, #35684b);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(53, 104, 75, 0.25);
+}
+.gt-name {
+  font-family: var(--font-display, system-ui);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.4px;
+  color: var(--text, #202820);
+}
+.gt-name b {
+  color: var(--green, #35684b);
+}
+.gt-btn {
+  width: 100%;
+  height: 46px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--green, #35684b);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.18s ease, transform 0.13s ease;
+}
+.gt-btn:hover {
+  background: var(--green-dark, #254d37);
+}
+.gt-btn:active {
+  transform: translateY(1px);
+}
+.gt-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.gt-link {
+  display: block;
+  margin: 16px auto 0;
+  background: none;
+  border: 0;
+  color: var(--green, #35684b);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+.gt-link:hover {
+  text-decoration: underline;
+}
+.gt-err {
+  min-height: 1.2em;
+  margin: -4px 0 12px;
+  font-size: 0.78rem;
+  color: var(--red, #bd5f52);
+  font-weight: 600;
+  background: var(--red-soft, #faeae5);
+  border: 1px solid #f5cfc7;
+  padding: 8px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gt-note {
+  margin: 18px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--muted-2, #9aa198);
+  text-align: center;
+}
+.gt-pw {
+  position: relative;
+  display: block;
+}
+.gt-eye {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: var(--green, #35684b);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.gt-eye:hover {
+  background: var(--green-soft, #e8f1e7);
+}
+
+/* Badges */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.badge-saving {
+  background: var(--green-soft, #e8f1e7);
+  color: #4c7b54;
+}
+.badge-living {
+  background: var(--yellow-soft, #faf2da);
+  color: #9a7e39;
+}
+.badge-playing {
+  background: var(--blue-soft, #e8f0ee);
+  color: #587f82;
+}
+.badge-neutral {
+  background: var(--surface-soft, #f1f4ed);
+  color: #7c8579;
+}
+
+/* Summary Note / Invariant Pill */
+.summary-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.summary-note.balanced {
+  background: #e8f1e7;
+  color: #35684b;
+  border: 1px solid #d4e3d0;
+}
+.summary-note.unbalanced {
+  background: #faf2da;
+  color: #9a7e39;
+  border: 1px solid #f2e2b3;
+}
+.summary-note.danger {
+  background: #faeae5;
+  color: #bd5f52;
+  border: 1px solid #f5cfc7;
+}
+
+/* Wise AI Speech Bubble */
+.wise-bubble {
+  background: #f0f5ed;
+  border: 1px solid #d9e6d4;
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+.wise-bubble-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--green, #35684b);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.wise-bubble-content {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--text, #202820);
+}
+
+

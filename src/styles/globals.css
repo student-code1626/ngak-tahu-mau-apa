@@ -1,0 +1,47 @@
+/* Global Typography & Base Normalization */
+html,
+body {
+  font-family: var(--font-body);
+  background-color: var(--page);
+  color: var(--text);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure tabular numbers for all money amounts */
+.tabular-nums,
+[data-money],
+.wf-amount {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Accessible focus visible ring */
+:focus-visible {
+  outline: 3px solid rgba(53, 104, 75, 0.4);
+  outline-offset: 2px;
+}
+
+/* Touch targets WCAG minimum 44px */
+button,
+a,
+input,
+select {
+  min-height: 44px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

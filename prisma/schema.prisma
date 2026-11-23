@@ -1,0 +1,547 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum IncomeType {
+  ROUTINE
+  IRREGULAR
+  TRANSFER_IN
+  NON_INCOME
+}
+
+enum TransactionType {
+  OPENING
+  INCOME
+  EXPENSE
+  TRANSFER
+  ADJUSTMENT
+}
+
+enum PosType {
+  LIVING
+  PLAYING
+  EMERGENCY
+  SAVINGS
+  INVESTMENT
+  GOALS
+}
+
+enum PosEntrySource {
+  OPENING
+  INCOME
+  PERIOD_LEFTOVER
+  MOVE_IN
+  MOVE_OUT
+  SPEND
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  POSTED
+  VOIDED
+}
+
+enum DebtKind {
+  BANK
+  CREDIT_CARD
+  PAYLATER
+  PERSONAL
+  ROUTINE_BILL
+  OTHER
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum GoalStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// 1. User & Authentication
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?
+  emailVerified DateTime?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  profile          Profile?
+  wallets          Wallet[]
+  categories       Category[]
+  transactions     Transaction[]
+  walletEntries    WalletEntry[]
+  posEntries       PosEntry[]
+  budgetPeriods    BudgetPeriod[]
+  incomeRules      IncomeRule[]
+  goals            Goal[]
+  debts            Debt[]
+  receivables      Receivable[]
+  assets           Asset[]
+  contacts         Contact[]
+  pushSubs         PushSubscription[]
+  reminders        Reminder[]
+  receiptUploads   ReceiptUpload[]
+  aiConversations  AiConversation[]
+  auditLogs        AuditLog[]
+
+  @@map("users")
+}
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  displayName     String
+  baseCurrency    String   @default("IDR")
+  budgetStartDay  Int      @default(1)
+  incomeType      String   @default("ROUTINE")
+  occupation      String?
+  estIncome       Decimal? @db.Decimal(20, 4)
+  primaryGoal     String?
+  preferredHour   Int      @default(20) // 19:00 - 21:00 reminder
+  pinHash         String?
+  pinEnabled      Boolean  @default(false)
+  avatarUrl       String?
+  onboardingDone  Boolean  @default(false)
+  onboardingStep  Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// 2. Wallets & Currency
+model Wallet {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  type        String   // BANK, EWALLET, CASH, OTHER
+  currency    String   @default("IDR")
+  cachedBal   Decimal  @default(0) @db.Decimal(20, 4)
+  brandKey    String?  // bca, gopay, dana, etc.
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletEntries WalletEntry[]
+
+  @@index([userId])
+  @@map("wallets")
+}
+
+// 3. Categories & Income Rules
+model Category {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  defaultPos PosType @default(LIVING)
+  icon      String?
+  color     String?
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([userId, name])
+  @@map("categories")
+}
+
+model IncomeRule {
+  id          String     @id @default(cuid())
+  userId      String
+  incomeType  IncomeType @default(ROUTINE)
+  savingPct   Decimal    @default(40) @db.Decimal(5, 2)
+  livingPct   Decimal    @default(45) @db.Decimal(5, 2)
+  playingPct  Decimal    @default(15) @db.Decimal(5, 2)
+  // Sub-saving split (must equal 100%)
+  emergencyPct Decimal   @default(50) @db.Decimal(5, 2)
+  savingsPct   Decimal   @default(20) @db.Decimal(5, 2)
+  investPct    Decimal   @default(20) @db.Decimal(5, 2)
+  goalsPct     Decimal   @default(10) @db.Decimal(5, 2)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, incomeType])
+  @@map("income_rules")
+}
+
+// 4. Budget Periods
+model BudgetPeriod {
+  id          String    @id @default(cuid())
+  userId      String
+  startDate   DateTime
+  endDate     DateTime
+  isClosed    Boolean   @default(false)
+  closedAt    DateTime?
+  livingBudget Decimal  @default(0) @db.Decimal(20, 4)
+  playingBudget Decimal @default(0) @db.Decimal(20, 4)
+  livingSpent  Decimal  @default(0) @db.Decimal(20, 4)
+  playingSpent Decimal  @default(0) @db.Decimal(20, 4)
+  createdAt   DateTime  @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  posEntries   PosEntry[]
+
+  @@index([userId, startDate])
+  @@map("budget_periods")
+}
+
+// 5. The Ledger: Transactions, WalletEntries, PosEntries
+model Transaction {
+  id             String            @id @default(cuid())
+  userId         String
+  periodId       String?
+  type           TransactionType
+  status         TransactionStatus @default(POSTED)
+  date           DateTime
+  title          String
+  note           String?
+  amount         Decimal           @db.Decimal(20, 4)
+  currency       String            @default("IDR")
+  fxRate         Decimal           @default(1) @db.Decimal(12, 6)
+  amountBase     Decimal           @db.Decimal(20, 4) // in user's base currency
+  idempotencyKey String
+  categoryId     String?
+  isEmergency    Boolean           @default(false)
+  emergencyFlag  String?           // "OK", "OUTSIDE_EMERGENCY"
+  isOverBudget   Boolean           @default(false)
+  voidReason     String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  period        BudgetPeriod?  @relation(fields: [periodId], references: [id], onDelete: SetNull)
+  category      Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  walletEntries WalletEntry[]
+  posEntries    PosEntry[]
+  debtPayments  DebtPayment[]
+  receiptUpload ReceiptUpload?
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, date])
+  @@index([userId, periodId])
+  @@map("transactions")
+}
+
+model WalletEntry {
+  id            String      @id @default(cuid())
+  userId        String
+  transactionId String
+  walletId      String
+  amount        Decimal     @db.Decimal(20, 4) // positive = credit/inflow, negative = debit/outflow
+  currency      String      @default("IDR")
+  amountBase    Decimal     @db.Decimal(20, 4)
+  createdAt     DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  wallet      Wallet      @relation(fields: [walletId], references: [id], onDelete: Restrict)
+
+  @@index([userId, walletId])
+  @@index([transactionId])
+  @@map("wallet_entries")
+}
+
+model PosEntry {
+  id            String         @id @default(cuid())
+  userId        String
+  transactionId String
+  periodId      String?
+  pos           PosType
+  source        PosEntrySource
+  amountBase    Decimal        @db.Decimal(20, 4)
+  goalId        String?
+  createdAt     DateTime       @default(now())
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction Transaction   @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  period      BudgetPeriod? @relation(fields: [periodId], references: [id], onDelete: SetNull)
+  goal        Goal?         @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  @@index([userId, pos])
+  @@index([transactionId])
+  @@index([userId, periodId])
+  @@map("pos_entries")
+}
+
+// 6. Goals, Debts, Assets, Receivables
+model Goal {
+  id          String     @id @default(cuid())
+  userId      String
+  name        String
+  targetAmount Decimal   @db.Decimal(20, 4)
+  currentAmount Decimal  @default(0) @db.Decimal(20, 4)
+  deadline    DateTime?
+  status      GoalStatus @default(IN_PROGRESS)
+  imageUrl    String?
+  reason      String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posEntries PosEntry[]
+
+  @@index([userId])
+  @@map("goals")
+}
+
+model Debt {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  creditor    String?
+  kind        DebtKind  @default(PERSONAL)
+  principal   Decimal   @db.Decimal(20, 4)
+  balance     Decimal   @db.Decimal(20, 4)
+  interestRate Decimal  @default(0) @db.Decimal(6, 2)
+  ratePeriod  Frequency @default(YEARLY)
+  installment Decimal   @default(0) @db.Decimal(20, 4)
+  frequency   Frequency @default(MONTHLY)
+  dueDate     DateTime?
+  remindDays  Int       @default(3)
+  isClosed    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments DebtPayment[]
+
+  @@index([userId])
+  @@map("debts")
+}
+
+model DebtPayment {
+  id            String   @id @default(cuid())
+  debtId        String
+  transactionId String
+  amountPaid    Decimal  @db.Decimal(20, 4)
+  interestPortion Decimal @default(0) @db.Decimal(20, 4)
+  principalPortion Decimal @default(0) @db.Decimal(20, 4)
+  paidAt        DateTime @default(now())
+
+  debt        Debt        @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([debtId])
+  @@map("debt_payments")
+}
+
+model Receivable {
+  id         String    @id @default(cuid())
+  userId     String
+  personName String
+  amount     Decimal   @db.Decimal(20, 4)
+  remaining  Decimal   @db.Decimal(20, 4)
+  note       String?
+  dueDate    DateTime?
+  isSettled  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("receivables")
+}
+
+model Asset {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  category     String   // EMAS, PROPERTI, KENDARAAN, SAHAM, LAINNYA
+  currentValue Decimal  @db.Decimal(20, 4)
+  purchaseCost Decimal? @db.Decimal(20, 4)
+  purchaseDate DateTime?
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  history AssetValueHistory[]
+
+  @@index([userId])
+  @@map("assets")
+}
+
+model AssetValueHistory {
+  id        String   @id @default(cuid())
+  assetId   String
+  value     Decimal  @db.Decimal(20, 4)
+  note      String?
+  recordedAt DateTime @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId, recordedAt])
+  @@map("asset_value_histories")
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  bankName  String?
+  accNumber String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@map("contacts")
+}
+
+// 7. Receipts, Push Notifications, AI Logs, Audit
+model ReceiptUpload {
+  id            String   @id @default(cuid())
+  userId        String
+  transactionId String?  @unique
+  encryptedPath String
+  merchantName  String?
+  detectedTotal Decimal? @db.Decimal(20, 4)
+  extractedData Json?
+  createdAt     DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("receipt_uploads")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  keys      Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_subscriptions")
+}
+
+model Reminder {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  targetDate DateTime
+  isSent    Boolean  @default(false)
+  sentAt    DateTime?
+  type      String   // DAILY, BILL, BUDGET_WARN
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, targetDate])
+  @@map("reminders")
+}
+
+model AiConversation {
+  id        String      @id @default(cuid())
+  userId    String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AiMessage[]
+
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // USER, ASSISTANT, SYSTEM
+  content        String   @db.Text
+  proposalData   Json?    // Proposed transaction draft
+  createdAt      DateTime @default(now())
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+model FxRate {
+  id          String   @id @default(cuid())
+  base        String   @default("IDR")
+  target      String
+  rate        Decimal  @db.Decimal(14, 6)
+  cachedUntil DateTime
+  updatedAt   DateTime @updatedAt
+
+  @@unique([base, target])
+  @@map("fx_rates")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("audit_logs")
+}
+

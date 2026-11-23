@@ -1,0 +1,23 @@
+{
+  "name": "WiseFinance — Saving, Living, Playing",
+  "short_name": "WiseFinance",
+  "description": "Pelacak keuangan pribadi dengan AI Agent Wise berbasis prinsip Saving, Living, Playing",
+  "start_url": "/id/dashboard",
+  "display": "standalone",
+  "background_color": "#F7F9F6",
+  "theme_color": "#35684B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

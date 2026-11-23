@@ -1,0 +1,36 @@
+// Custom Bootstrap 5 SCSS
+// Import only required variables and components to avoid bloating and style collision
+
+// 1. Override default Bootstrap theme variables with WiseFinance tokens
+$primary: #35684b;
+$success: #4e835c;
+$warning: #d5b55e;
+$info: #7d9fa0;
+$danger: #bd5f52;
+$light: #f6f7f3;
+$dark: #202820;
+
+$body-bg: transparent;
+$body-color: #202820;
+$font-family-base: system-ui, -apple-system, sans-serif;
+
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$border-radius-lg: 18px;
+
+// 2. Import core functions and variables
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+
+// 3. Import only essential Bootstrap components used in WiseFinance
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/tables';
+@import 'bootstrap/scss/dropdown';
+@import 'bootstrap/scss/modal';
+@import 'bootstrap/scss/toasts';
+@import 'bootstrap/scss/transitions';

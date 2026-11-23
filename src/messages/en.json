@@ -1,0 +1,43 @@
+{
+  "common": {
+    "appName": "WiseFinance",
+    "tagline": "Money with clarity, life with calm",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "loading": "Loading...",
+    "search": "Search...",
+    "confirm": "Confirm"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Records & History",
+    "wallets": "Wallets",
+    "budget": "Budget",
+    "buckets": "Saving Buckets",
+    "goals": "Goals",
+    "debts": "Debts",
+    "assets": "Assets",
+    "reports": "Reports",
+    "profile": "Profile & Settings"
+  },
+  "layers": {
+    "monthTitle": "This Month's Money",
+    "monthSubtitle": "Living & Playing available for current period",
+    "storedTitle": "Stored Wealth",
+    "storedSubtitle": "Emergency, Savings, Investment, & Goals"
+  },
+  "pos": {
+    "saving": "Saving",
+    "living": "Living",
+    "playing": "Playing",
+    "emergency": "Emergency Fund",
+    "savings": "Savings",
+    "investment": "Investment",
+    "goals": "Goals"
+  }
+}
+

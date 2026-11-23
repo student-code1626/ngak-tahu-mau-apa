@@ -1,0 +1,43 @@
+{
+  "common": {
+    "appName": "WiseFinance",
+    "tagline": "Uang lebih terarah, hidup lebih tenang",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Ubah",
+    "add": "Tambah",
+    "back": "Kembali",
+    "loading": "Memuat...",
+    "search": "Cari...",
+    "confirm": "Konfirmasi"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Catat & Riwayat",
+    "wallets": "Dompet",
+    "budget": "Anggaran",
+    "buckets": "Bucket Saving",
+    "goals": "Tujuan",
+    "debts": "Hutang",
+    "assets": "Aset",
+    "reports": "Laporan",
+    "profile": "Profil & Pengaturan"
+  },
+  "layers": {
+    "monthTitle": "Uang Bulan Ini",
+    "monthSubtitle": "Living & Playing yang tersedia untuk periode ini",
+    "storedTitle": "Uang Tersimpan",
+    "storedSubtitle": "Dana Darurat, Tabungan, Investasi, & Tujuan"
+  },
+  "pos": {
+    "saving": "Saving",
+    "living": "Living",
+    "playing": "Playing",
+    "emergency": "Dana Darurat",
+    "savings": "Tabungan",
+    "investment": "Investasi",
+    "goals": "Tujuan"
+  }
+}
+
